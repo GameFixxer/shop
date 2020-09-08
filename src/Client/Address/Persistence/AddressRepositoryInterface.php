@@ -16,4 +16,6 @@ interface AddressRepositoryInterface
     public function getAddress(UserDataProvider $user, string $type, int $postcode): ?AddressDataProvider;
 
     public function getAddressListFromUser(int $userId):array;
+
+    public function getById(int $addressId):?AddressDataProvider;
 }

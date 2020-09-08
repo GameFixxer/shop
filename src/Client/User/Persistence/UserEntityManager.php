@@ -9,7 +9,6 @@ use App\Generated\UserDataProvider;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 
-
 class UserEntityManager implements UserEntityManagerInterface
 {
     /**
@@ -70,6 +69,14 @@ class UserEntityManager implements UserEntityManagerInterface
     }
     private function convert(User $userEntity, UserDataProvider $userDataProvider):User
     {
+        $userEntity->setShoppingCardId($userDataProvider->getShoppingCardId());
+        $userEntity->setSessionId($userDataProvider->setSessionId());
+        $userEntity->setResetPassword($userDataProvider->getResetPassword());
+        $userEntity->setUsername($userDataProvider->getUsername());
+        $userEntity->setRole($userDataProvider->getRole());
+        $userEntity->setPassword($userDataProvider->getPassword());
+        $userEntity->setAddressIds($userDataProvider->getAddressId());
+
         return $userEntity;
     }
 }

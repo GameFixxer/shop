@@ -47,4 +47,9 @@ class AddressBusinessFacade implements AddressBusinessFacadeInterface
     {
         $this->addressEntityManager->delete($address);
     }
+
+    public function getById(int $addressId):?AddressDataProvider
+    {
+        $this->addressRepository->getById();
+    }
 }

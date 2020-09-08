@@ -39,11 +39,7 @@ class OrderMapper implements OrderMapperInterface
         }
         $orderDataTransferObject->setUser($user);
         $orderDataTransferObject->setSum($order->getSum());
-        $address = $this->addressBusinessFacade->get(
-            $orderDataTransferObject->getUser(),
-            $order->getAddressId()->getType(),
-            $order->getAddressId()->getPostCode()
-        );
+        $address = $this->addressBusinessFacade->getById($order->getAddressId());
         if (! $address instanceof AddressDataProvider) {
             throw new \Exception('Critical RepositoryError', 1);
         }

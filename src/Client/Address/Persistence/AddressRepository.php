@@ -65,4 +65,15 @@ class AddressRepository implements AddressRepositoryInterface
 
         return $addressList;
     }
+
+    public function getById(int $addressId):?AddressDataProvider
+    {
+        $addressEntity = $this->entityRepository->findBy([
+            'address_id' => $addressId
+        ]);
+        if (isset($addressEntity)) {
+            return $this->addressMapper->map($addressEntity[0]);
+        }
+        return null;
+    }
 }

@@ -20,4 +20,6 @@ interface AddressBusinessFacadeInterface
     public function delete(AddressDataProvider $address);
 
     public function getListFromSpecificUser(int $userId):array;
+
+    public function getById(int $addressId):?AddressDataProvider;
 }

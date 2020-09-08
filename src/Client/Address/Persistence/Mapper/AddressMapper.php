@@ -20,7 +20,7 @@ class AddressMapper implements AddressMapperInterface
     public function map(Address $address): AddressDataProvider
     {
         $addressDataTransferObject = new  AddressDataProvider();
-        $user = $this->userBusinessFacade->getById($address->getUserId()->getUsername());
+        $user = $this->userBusinessFacade->getById($address->getUserId());
         if (!$user instanceof UserDataProvider) {
             throw new \Exception('UserRepository Returned null for username:'.$address->getUserId()->getUsername(), 1);
         }
