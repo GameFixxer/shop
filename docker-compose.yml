@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  db:
+    image: mysql:5.7
+    container_name: db
+    environment:
+      MYSQL_ROOT_PASSWORD: pass123
+      MYSQL_USER: babo
+      MYSQL_PASSWORD: pass123
+    ports:
+      - 3336:3306
+  mailcatcher:
+    image: schickling/mailcatcher
+    container_name: cms_mailcatcher
+    ports:
+      - 1080:1080
+      - 1025:1025

@@ -1,0 +1,43 @@
+build:
+  environment:
+    php:
+      version: "7.4"
+  nodes:
+    analysis:
+      project_setup:
+        override:
+          - 'true'
+      tests:
+        override:
+          - php-scrutinizer-run
+          -
+            command: phpcs-run
+            use_website_config: true
+filter:
+  excluded_paths:
+    - '*.tpl.php'
+    - '*.min.js'
+    - '*/dist/*'
+    - '/node_modules'
+    - '/templates_c'
+    - '/config'
+    - '*/_generated/*'
+    - 'c3.php'
+    - 'src/Component/cache-container.php'
+    - 'src/Component/cache-container.php.meta'
+    - 'src/Generated/*'
+
+
+checks:
+  php: true
+coding_style:
+  php:
+    indentation:
+      switch:
+        indent_case: false
+    spaces:
+      other:
+        after_type_cast: false
+build_failure_conditions:
+  - 'elements.rating(< A).exists'
+  - 'issues.new.exists'

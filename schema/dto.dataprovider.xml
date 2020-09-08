@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+
+<DataProviders
+        xmlns="xervice:dataprovider-01"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="xervice:dataprovider-01 http://static.xervice.online/schema/dataprovider.schema.xsd"
+>
+    <DataProvider name="ShoppingCard">
+        <DataElement name="product" type="Product[]" singleton="Product" />
+        <DataElement name="id" type="int" default="0" />
+        <DataElement name="sum" type="int" default="0" />
+        <DataElement name="quantity" type="int" default="0" />
+        <DataElement name="user" type="User" singleton="User" />
+    </DataProvider>
+
+    <DataProvider name="Address">
+        <DataElement name="address_id" type="int" default="0" />
+        <DataElement name="User" type="User" singleton="User" />
+        <DataElement name="country" type="string" default="''" />
+        <DataElement name="street" type="string" default="''" />
+        <DataElement name="town" type="string" default="''" />
+        <DataElement name="postcode" type="int" default="0" />
+        <DataElement name="type" type="string" default="''" />
+        <DataElement name="firstName" type="string" default="''" />
+        <DataElement name="lastName" type="string" default="''" />
+    </DataProvider>
+
+    <DataProvider name="Attribute">
+        <DataElement name="attributeId" type="int" default="0" />
+        <DataElement name="attributeKey" type="string" default="''" />
+        <DataElement name="attributeValue" type="string" default="''" />
+    </DataProvider>
+
+    <DataProvider name="Category">
+        <DataElement name="categoryId" type="int" default="0" />
+        <DataElement name="categoryKey" type="string" default="''" />
+    </DataProvider>
+
+    <DataProvider name="Email">
+        <DataElement name="to" type="string" default="''" />
+        <DataElement name="message" type="string" default="''" />
+        <DataElement name="subject" type="string" default="''" />
+    </DataProvider>
+
+    <DataProvider name="User">
+        <DataElement name="username" type="string" default="''" />
+        <DataElement name="password" type="string" default="''" />
+        <DataElement name="role" type="string" default="''" />
+        <DataElement name="sessionId" type="string" default="''" />
+        <DataElement name="resetPassword" type="string" default="''" />
+        <DataElement name="id" type="int" default="0" />
+        <DataElement name="shoppingCardId" type="int" default="0" />
+        <DataElement name="addressId" type="string" default="" />
+    </DataProvider>
+
+    <DataProvider name="Product">
+        <DataElement name="name" type="string" default="''" />
+        <DataElement name="description" type="string" default="''" />
+        <DataElement name="articleNumber" type="string" default="''" />
+        <DataElement name="category" type="?Category" singleton="Category" />
+        <DataElement name="attribute" type="Attribute[]" singleton="Attribute" />
+        <DataElement name="id" type="int" default="0" />
+        <DataElement name="price" type="int" default="0" />
+    </DataProvider>
+
+    <DataProvider name="Order">
+        <DataElement name="id" type="int" default="" />
+        <DataElement name="user" type="User" singleton="User" />
+        <DataElement name="address" type="Address" singleton="Address" />
+        <DataElement name="sum" type="int" default="0" />
+        <DataElement name="shoppingCard" type="ShoppingCard" singleton="ShoppingCard" />
+        <DataElement name="status" type="string" default="''" />
+        <DataElement name="dateOfOrder" type="string" default="" />
+    </DataProvider>
+
+    <DataProvider name="CsvProduct">
+        <DataElement name="name" type="string" default="''" />
+        <DataElement name="description" type="string" default="''" />
+        <DataElement name="articleNumber" type="string" default="''" />
+        <DataElement name="category" type="Category" singleton="Category" />
+        <DataElement name="attribute" type="Attribute[]" singleton="Attribute" />
+        <DataElement name="user" type="User" singleton="User" />
+        <DataElement name="id" type="int" default="0" />
+        <DataElement name="price" type="int" default="0" />
+        <DataElement name="categoryId" type="int" default="0" />
+        <DataElement name="categoryKey" type="string" default="''" />
+        <DataElement name="attributeId" type="int" default="0" />
+        <DataElement name="attributeKey" type="string" default="''" />
+        <DataElement name="attributeValue" type="string" default="''" />
+    </DataProvider>
+
+    <DataProvider name="Csv">
+        <DataElement name="id" type="int" default="" />
+        <DataElement name="user" type="User" singleton="User" />
+        <DataElement name="address" type="Address" singleton="address" />
+        <DataElement name="sum" type="int" default="0" />
+        <DataElement name="shoppingCard" type="ShoppingCard" singleton="ShoppingCard" />
+        <DataElement name="status" type="string" default="" />
+        <DataElement name="dateOfOrder" type="string" default="" />
+    </DataProvider>
+
+    <DataProvider name="CsvCategory">
+        <DataElement name="categoryId" type="int" default="0" />
+        <DataElement name="categoryKey" type="string" default="''" />
+    </DataProvider>
+
+    <DataProvider name="CsvAttribute">
+        <DataElement name="attributeId" type="int" default="0" />
+        <DataElement name="attributeKey" type="string" default="''" />
+        <DataElement name="attributeValue" type="string" default="''" />
+    </DataProvider>
+
+</DataProviders>

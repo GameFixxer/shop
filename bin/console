@@ -1,0 +1,23 @@
+#!/usr/bin/env php
+<?php
+// application.php
+
+require __DIR__.'/../vendor/autoload.php';
+
+use App\Component\SymfonyContainer;
+use Xervice\DataProvider\Communication\Console\CleanCommand;
+use Xervice\DataProvider\Communication\Console\GenerateCommand;
+
+use Symfony\Component\Console\Application;
+
+$application = new Application();
+
+// ... register commands
+$container = new SymfonyContainer();
+$application->add(new GenerateCommand());
+$application->add(new CleanCommand());
+$application->add(new \App\Backend\ImportProduct\Communication\ImportCommand($container));
+$application->add(new \App\Backend\ImportAttribute\Communication\ImportCommand($container));
+$application->add(new \App\Backend\ImportCategory\Communication\ImportCommand($container));
+$application->run();
+

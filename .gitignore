@@ -1,0 +1,9 @@
+.idea/
+vendor
+/template_c/*
+!template_c/.gitkeep
+/cache/*
+!cache/.gitkeep
+/config/*
+!config/.gitkeep
+
