@@ -50,6 +50,6 @@ class AddressBusinessFacade implements AddressBusinessFacadeInterface
 
     public function getById(int $addressId):?AddressDataProvider
     {
-        $this->addressRepository->getById();
+        $this->addressRepository->getById($addressId);
     }
 }

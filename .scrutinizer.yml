@@ -26,6 +26,7 @@ filter:
     - 'src/Component/cache-container.php'
     - 'src/Component/cache-container.php.meta'
     - 'src/Generated/*'
+    - 'tests/_support/*'
 
 
 checks:

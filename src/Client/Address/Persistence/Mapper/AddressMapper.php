@@ -22,7 +22,7 @@ class AddressMapper implements AddressMapperInterface
         $addressDataTransferObject = new  AddressDataProvider();
         $user = $this->userBusinessFacade->getById($address->getUserId());
         if (!$user instanceof UserDataProvider) {
-            throw new \Exception('UserRepository Returned null for username:'.$address->getUserId()->getUsername(), 1);
+            throw new \Exception('UserRepository Returned null for username:'.$address->getUserId(), 1);
         }
         $addressDataTransferObject->setUser($user);
         $addressDataTransferObject->setAddress_id($address->getId());
