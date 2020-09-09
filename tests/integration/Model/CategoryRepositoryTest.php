@@ -4,11 +4,8 @@
 namespace App\Tests\integration\Model;
 
 
-use App\Client\Category\Persistence\CategoryRepository;
+
 use App\Client\Category\Persistence\Entity\Category;
-use App\Client\Category\Persistence\Mapper\CategoryMapper;
-use App\Client\Product\Persistence\Entity\Product;
-use App\Client\Product\Persistence\Entity\TestEntity;
 use App\Service\DatabaseManager;
 use App\Tests\integration\Helper\ContainerHelper;
 use Cycle\ORM\Transaction;

@@ -49,8 +49,8 @@ class ShoppingCardTest extends \Codeception\Test\Unit
         $product1->setPrice(1);
         $product1->setCategoryId(null);
         $product1->setArticleNumber('product1');
-        $product1->setProductDescription('product1');
-        $product1->setProductName('product1');
+        $product1->setDescription('product1');
+        $product1->setName('product1');
         $product1->setAttributeKey("");
 
         $transaction = new Transaction($this->orm);
@@ -61,8 +61,8 @@ class ShoppingCardTest extends \Codeception\Test\Unit
         $product2->setPrice(2);
         $product2->setCategoryId(null);
         $product2->setArticleNumber('product2');
-        $product2->setProductDescription('product2');
-        $product2->setProductName('product2');
+        $product2->setDescription('product2');
+        $product2->setName('product2');
         $product2->setAttributeKey("");
 
         $transaction->persist($product2);
@@ -72,8 +72,8 @@ class ShoppingCardTest extends \Codeception\Test\Unit
         $product3->setPrice(3);
         $product3->setCategoryId(null);
         $product3->setArticleNumber('product3');
-        $product3->setProductDescription('product3');
-        $product3->setProductName('product3');
+        $product3->setDescription('product3');
+        $product3->setName('product3');
         $product3->setAttributeKey("");
 
 

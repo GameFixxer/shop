@@ -6,7 +6,6 @@ namespace App\Tests\integration\Model;
 use App\Client\Product\Persistence\Entity\Product;
 use App\Tests\integration\Helper\ContainerHelper;
 
-
 /**
  * @group model
  */
@@ -21,8 +20,6 @@ class ProductRepositoryTest extends \Codeception\Test\Unit
     public function _before()
     {
         $this->container = new ContainerHelper();
-
-
     }
 
     public function _after()
@@ -37,28 +34,26 @@ class ProductRepositoryTest extends \Codeception\Test\Unit
         $this->assertSame($this->entity->getName(), $productDtoFromRepository->getName());
         $this->assertSame($this->entity->getDescription(), $productDtoFromRepository->getDescription());
         $this->assertSame($this->entity->getId(), $productDtoFromRepository->getId());
-
-
     }
 
     public function testGetProductWithNonExistingProduct()
     {
         $productRepository = $this->container->getProductRepository();
 
-        $this->assertNull($productRepository->get(0));
+        $this->assertNull($productRepository->get(''));
     }
 
     public function testGetLastProductOfProductListWithNonEmptyDatabase()
     {
         $productRepository = $this->container->getProductRepository();
-        /*
-                $productListFromProductRepository = $productRepository->getList();
 
-                $lastProductOfProductRepositoryList = end($productListFromProductRepository);
+        $productListFromProductRepository = $productRepository->getList();
 
-                $this->assertSame($this->entity->getProductName(), $lastProductOfProductRepositoryList ->getName());
-                $this->assertSame($this->entity->getProductDescription(), $lastProductOfProductRepositoryList ->getDescription());
-                $this->assertSame($this->entity->getId(), $lastProductOfProductRepositoryList ->getId());*/
+        $lastProductOfProductRepositoryList = end($productListFromProductRepository);
+
+        $this->assertSame($this->entity->getName(), $lastProductOfProductRepositoryList ->getName());
+        $this->assertSame($this->entity->getDescription(), $lastProductOfProductRepositoryList ->getDescription());
+        $this->assertSame($this->entity->getId(), $lastProductOfProductRepositoryList ->getId());
         self::assertNotNull($productRepository->getList());
     }
 
