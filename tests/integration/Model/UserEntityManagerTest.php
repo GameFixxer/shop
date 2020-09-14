@@ -24,7 +24,6 @@ class UserEntityManagerTest extends \Codeception\Test\Unit
     private ContainerHelper $container;
     private PasswordManager $passwordManager;
     private $businessFacade;
-    private UserDataProvider $entity;
     private EntityManager $entityManager;
     private EntityRepository $repository;
     private UserDataProvider $userDto;

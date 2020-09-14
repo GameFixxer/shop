@@ -47,7 +47,7 @@ class ProductRepository implements ProductRepositoryInterface
     public function get(string $articleNumber): ?ProductDataProvider
     {
         $productEntity = $this->productRepository->findBy(['articleNumber'=>$articleNumber]);
-        if (isset($productEntity)) {
+        if (isset($productEntity[0])) {
             return $this->productMapper->map($productEntity[0]);
         }
         return null;

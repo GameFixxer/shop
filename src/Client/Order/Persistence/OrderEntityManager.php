@@ -4,10 +4,9 @@ declare(strict_types=1);
 namespace App\Client\Order\Persistence;
 
 use App\Client\Order\Persistence\Entity\Order;
-use App\Client\User\Persistence\Entity\User;
 use App\Generated\OrderDataProvider;
-use Cycle\ORM\ORM;
-use Cycle\ORM\Transaction;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityRepository;
 
 class OrderEntityManager implements OrderEntityManagerInterface
 {
@@ -15,51 +14,37 @@ class OrderEntityManager implements OrderEntityManagerInterface
      * @var OrderRepository
      */
     private OrderRepository $orderRepository;
-    private \Cycle\ORM\RepositoryInterface $repository;
-    private \Spiral\Database\DatabaseInterface $database;
+    private EntityManager $entityManager;
+    private EntityRepository $repository;
 
-    private ORM $orm;
-
-    public function __construct(ORM $orm, OrderRepository $orderRepository)
+    public function __construct(EntityManager $entityManager, OrderRepository $orderRepository)
     {
         $this->orderRepository = $orderRepository;
-        $this->orm = $orm;
-        $this->repository = $orm->getRepository(Order::class);
-        $this->database = $orm->getSource(User::class)->getDatabase();
+        $this->entityManager = $entityManager;
+        $this->repository = $entityManager->getRepository(Order::class);
     }
 
 
 
     public function delete(OrderDataProvider $order):void
     {
-        $transaction = new Transaction($this->orm);
-        $transaction->delete($this->repository->findOne(['orderId'=>$order->getId()]));
-        $transaction->run();
-
+        $this->entityManager->remove($order);
+        $this->entityManager->flush();
         $this->orderRepository->getList();
     }
 
     public function save(OrderDataProvider $order): OrderDataProvider
     {
-        $values = [
-            'sum' =>  $order->getSum(),
-            'status' =>  $order->getStatus(),
-            'ordered_products'  => $this->shrinkProductToArticleNumber($order->getShoppingCard()->getProduct()),
-            'user_id' => $order->getUser()->getId(),
-            'address_address_id'  => $order->getAddress()->getAddress_id(),
-            'shopping_card_id'  => $order->getShoppingCard()->getId(),
-            'date_of_order'  => $order->getDateOfOrder()
-        ];
-        if (!$this->repository->findByPK($order->getId()) instanceof Order) {
-            $transaction= $this->database->insert('orders')->values($values);
-        } else {
-            $values ['order_id'] =  $order->getId();
-            $transaction = $this->database->update('orders', $values, ['order_id' => $order->getId()]);
+        if ($order->hasId()) {
+            $order->setId($this->orderRepository->getWithDateAndUserId($order->getUser()->getId(), $order->getDateOfOrder())->getId());
         }
-        $transaction->run();
+        $userEntity = $this->convert($order);
+
+
+        $this->entityManager->persist($userEntity);
+        $this->entityManager->flush();
 
         $newOrder = $this->orderRepository->getWithDateAndUserId($order->getUser()->getId(), $order->getDateOfOrder());
-
         if (! $newOrder instanceof OrderDataProvider) {
             throw new \Exception('Fatal error while saving/loading', 1);
         }
@@ -72,5 +57,20 @@ class OrderEntityManager implements OrderEntityManagerInterface
             $articleNumber[]=$article->getArticleNumber();
         }
         return implode(',', $articleNumber);
+    }
+
+    private function convert(OrderDataProvider $orderDataProvider):Order
+    {
+        $order = new Order();
+        $order->setId($orderDataProvider->getId());
+        $order->setUserId($orderDataProvider->getUser()->getId());
+        $order->setAddressId($orderDataProvider->getAddress()->getAddress_id());
+        $order->setShoppingCardId($orderDataProvider->getShoppingCard()->getId());
+        $order->setSum($orderDataProvider->getSum());
+        $order->setOrderedProducts($this->shrinkProductToArticleNumber($orderDataProvider->getShoppingCard()->getProduct()));
+        $order->setStatus($orderDataProvider->getStatus());
+        $order->setDateOfOrder($orderDataProvider->getDateOfOrder());
+
+        return $order;
     }
 }

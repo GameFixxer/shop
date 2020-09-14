@@ -59,7 +59,12 @@ class UserEntityManager implements UserEntityManagerInterface
         $userEntity->setUsername($userDataProvider->getUsername());
         $userEntity->setRole($userDataProvider->getRole());
         $userEntity->setPassword($userDataProvider->getPassword());
-        $userEntity->setAddressIds($userDataProvider->getAddressId());
+        if ($userDataProvider->hasAddressId()) {
+            $userEntity->setAddressIds($userDataProvider->getAddressId());
+        } else {
+            $userEntity->setAddressIds("");
+        }
+
         return $userEntity;
     }
 }

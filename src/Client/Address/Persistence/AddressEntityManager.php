@@ -5,8 +5,8 @@ namespace App\Client\Address\Persistence;
 
 use App\Client\Address\Persistence\Entity\Address;
 use App\Generated\AddressDataProvider;
-use Cycle\ORM\ORM;
-use Cycle\ORM\Transaction;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityRepository;
 
 class AddressEntityManager implements AddressEntityManagerInterface
 {
@@ -14,58 +14,53 @@ class AddressEntityManager implements AddressEntityManagerInterface
      * @var AddressRepositoryInterface
      */
     private AddressRepositoryInterface $addressRepository;
-    private \Cycle\ORM\RepositoryInterface $repository;
-    private \Spiral\Database\DatabaseInterface $database;
+    private EntityManager $entityManager;
+    private EntityRepository $repository;
 
-    private ORM $orm;
 
-    public function __construct(ORM $orm, AddressRepositoryInterface $addressRepository)
+    public function __construct(EntityManager $entityManager, AddressRepositoryInterface $addressRepository)
     {
         $this->addressRepository = $addressRepository;
-        $this->orm = $orm;
-        $this->repository = $orm->getRepository(Address::class);
-        $this->database = $orm->getSource(Address::class)->getDatabase();
+        $this->entityManager = $entityManager;
+        $this->repository = $entityManager->getRepository(Address::class);
     }
 
 
 
     public function delete(AddressDataProvider $address):void
     {
-        $transaction = new Transaction($this->orm);
-        $transaction->delete($this->repository->findOne(['address_id'=>$address->getAddress_id()]));
-        $transaction->run();
-
+        $this->entityManager->remove($address);
+        $this->entityManager->flush();
         $this->addressRepository->getAddressList();
     }
 
     public function save(AddressDataProvider $address): AddressDataProvider
     {
-        $entity = $this->repository->findOne(['address_id'=>$address->getAddress_id()]);
-        $values = [
-            'town'         => $address->getTown(),
-            'country'         => $address->getCountry(),
-            'street'         => $address->getStreet(),
-            'post_code'        => $address->getPostCode(),
-            'first_name'        => $address->getFirstName(),
-            'last_name'      =>$address->getLastName(),
-            'user_id'      =>$address->getUser()->getId(),
-            'type'      =>$address->getType()
-        ];
 
-        if (!$entity instanceof Address) {
-            $transaction= $this->database->insert('address')->values($values);
-        } else {
-            $values ['address_id'] =  $entity->getId();
-            $transaction = $this->database->update('address')->values($values)->where('address_id', '=', $entity->getId());
+        $userEntity = $this->convert($address);
+
+
+        $this->entityManager->persist($userEntity);
+        $this->entityManager->flush();
+
+        $newAddress = $this->addressRepository->getAddress($address->getUser(), $address->getType(), $address->getPostcode());
+        if (! $newAddress instanceof AddressDataProvider) {
+            throw new \Exception('Fatal error while saving/loading', 1);
         }
-
-        $transaction->run();
-
-        $address = $this->addressRepository->getAddress($address->getUser(), $address->getType(), $address->getPostcode());
-
-        if (!$address instanceof AddressDataProvider) {
-            throw new \Exception('Critical RepositoryError', 1);
-        }
+        return $newAddress;
+    }
+    private function convert(AddressDataProvider $addressDataProvider):Address
+    {
+        $address = new Address();
+        $address->setUserId($addressDataProvider->getUser()->getId());
+        $address->setId($addressDataProvider->getAddress_id());
+        $address->setLastName($addressDataProvider->getLastName());
+        $address->setFirstName($addressDataProvider->getFirstName());
+        $address->setStreet($addressDataProvider->getStreet());
+        $address->setCountry($addressDataProvider->getCountry());
+        $address->setPostCode($addressDataProvider->getPostcode());
+        $address->setTown($addressDataProvider->getTown());
+        $address->setType($addressDataProvider->getType());
 
         return $address;
     }

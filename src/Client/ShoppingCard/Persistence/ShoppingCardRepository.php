@@ -27,7 +27,7 @@ class ShoppingCardRepository implements ShoppingCardRepositoryInterface
     public function get(int $id): ShoppingCardDataProvider
     {
         $addressEntity = $this->repository->findBy(['shoppingCard_id'=>$id]);
-        if (!isset($addressEntity)) {
+        if (!isset($addressEntity[0])) {
             throw new \Exception('Critical RepositoryError', 1);
         }
         return $this->shoppingCardMapper->map($addressEntity[0]);
@@ -35,8 +35,8 @@ class ShoppingCardRepository implements ShoppingCardRepositoryInterface
 
     public function getByUserId(int $id): ShoppingCardDataProvider
     {
-        $addressEntity = $this->repository->findBy(['User_id'=>$id]);
-        if (!isset($addressEntity)) {
+        $addressEntity = $this->repository->findBy(['userId'=>$id]);
+        if (!isset($addressEntity[0])) {
             throw new \Exception('Critical RepositoryError', 1);
         }
         return $this->shoppingCardMapper->map($addressEntity[0]);

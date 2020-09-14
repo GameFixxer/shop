@@ -47,7 +47,7 @@ class OrderRepository implements OrderRepositoryInterface
 
     public function getWithDateAndUserId(int $userId, string $dateOfOrder): ?OrderDataProvider
     {
-        $order = $this->repository->findBy(['user_id'=>$userId, 'date_of_order'=> $dateOfOrder]);
+        $order = $this->repository->findBy(['userId'=>$userId, 'dateOfOrder'=> $dateOfOrder]);
         if (isset($order)) {
             return $this->orderMapper->map($order[0]);
         }

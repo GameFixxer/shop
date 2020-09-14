@@ -9,9 +9,10 @@ use App\Generated\AddressDataProvider;
 use App\Generated\OrderDataProvider;
 use App\Generated\ShoppingCardDataProvider;
 use App\Generated\UserDataProvider;
-use App\Service\DatabaseManager;
+use App\Service\DoctrineDataBaseManager;
 use App\Tests\integration\Helper\ContainerHelper;
-use Cycle\ORM\Transaction;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityRepository;
 
 /**
  * @group order
@@ -20,8 +21,6 @@ use Cycle\ORM\Transaction;
 class OrderRepositoryTest extends \Codeception\Test\Unit
 {
     private ContainerHelper $container;
-    private Transaction $transaction;
-    private \Cycle\ORM\RepositoryInterface $ormAttributeRepository;
     private UserEntityManagerInterface $userBusinessFace;
     private $addressBusinessFace;
     private OrderDataProvider $entity;
@@ -30,16 +29,14 @@ class OrderRepositoryTest extends \Codeception\Test\Unit
     private $orderEntityManager;
     private $shoppingCardEntityManager;
     private ShoppingCardDataProvider $shoppingCard;
+    private EntityManager $entityManager;
+    private EntityRepository $repository;
 
     public function _before()
     {
         $this->container = new ContainerHelper();
-
-        $databaseManager = new DatabaseManager();
-
-        $orm = $databaseManager->connect();
-        $this->transaction = new Transaction($orm);
-        $this->ormAttributeRepository = $orm->getRepository(Order::class);
+        $this->entityManager = DoctrineDataBaseManager::getEntityManager();
+        $this->repository =  $this->entityManager->getRepository(Order::class);
         $this->shoppingCardEntityManager = $this->container->getShoppingCardEntityManager();
         $this->orderEntityManager = $this->container->getOrderEntityManager();
         $this->userBusinessFace = $this->container->getUserEntityManager();
@@ -53,10 +50,8 @@ class OrderRepositoryTest extends \Codeception\Test\Unit
 
     public function _after()
     {
-        if ($this->ormAttributeRepository->findByPK($this->entity->getId()) instanceof Order) {
-            $this->transaction->delete($this->ormAttributeRepository->findByPK($this->entity->getId()));
-            $this->transaction->run();
-        }
+        $this->entityManager->remove($this->entity);
+        $this->entityManager->flush();
     }
 
     public function testGetOrderWithExistingOrder()
@@ -143,7 +138,6 @@ class OrderRepositoryTest extends \Codeception\Test\Unit
         $this->shoppingCard->setQuantity(0);
         $this->shoppingCard->setSum(0);
         $this->shoppingCard->setUser($this->user);
-        $this->shoppingCard->setId(0);
         return $this->shoppingCardEntityManager->save($this->shoppingCard);
     }
 }

@@ -7,6 +7,8 @@ use App\Client\ShoppingCard\Persistence\Entity\ShoppingCard;
 use App\Generated\ShoppingCardDataProvider;
 use Cycle\ORM\ORM;
 use Cycle\ORM\Transaction;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityRepository;
 
 class ShoppingCardEntityManager implements ShoppingCardEntityManagerInterface
 {
@@ -14,50 +16,41 @@ class ShoppingCardEntityManager implements ShoppingCardEntityManagerInterface
      * @var ShoppingCardRepositoryInterface
      */
     private ShoppingCardRepositoryInterface $shoppingCardRepository;
-    private \Cycle\ORM\RepositoryInterface $repository;
-    private \Spiral\Database\DatabaseInterface $database;
+    private EntityManager $entityManager;
+    private EntityRepository $repository;
 
-    private ORM $orm;
 
-    public function __construct(ORM $orm, ShoppingCardRepositoryInterface $shoppingCardRepository)
+    public function __construct(EntityManager $entityManager, ShoppingCardRepositoryInterface $shoppingCardRepository)
     {
         $this->shoppingCardRepository = $shoppingCardRepository;
-        $this->orm = $orm;
-        $this->repository = $orm->getRepository(ShoppingCard::class);
-        $this->database = $orm->getSource(ShoppingCard::class)->getDatabase();
+        $this->entityManager = $entityManager;
+        $this->repository = $entityManager->getRepository(ShoppingCard::class);
     }
 
 
 
     public function delete(ShoppingCardDataProvider $shoppingCardDataProvider):void
     {
-        $transaction = new Transaction($this->orm);
-        $transaction->delete($this->repository->findByPK($shoppingCardDataProvider->getid()));
-        $transaction->run();
+        $this->entityManager->remove($shoppingCardDataProvider);
+        $this->entityManager->flush();
     }
 
     public function save(ShoppingCardDataProvider $shoppingCardDataProvider): ShoppingCardDataProvider
     {
-        $entity = $this->repository->findByPK($shoppingCardDataProvider->getid());
-        $values = [
-            'sum'         => $shoppingCardDataProvider->getSum(),
-            'quantity'      => $shoppingCardDataProvider->getQuantity(),
-            'shopping_card'         => $this->extractArticleNumber($shoppingCardDataProvider->getProduct()),
-            'User_id'        => $shoppingCardDataProvider->getUser()->getId()
-        ];
-
-        if (!$entity instanceof ShoppingCard) {
-            $transaction= $this->database->insert('shoppingcard')->values($values);
-        } else {
-            $values ['id'] =  $entity->getId();
-            $transaction = $this->database->update('shoppingcard')->values($values)->where('id', '=', $entity->getId());
+        if ($shoppingCardDataProvider->hasId()) {
+            $shoppingCardDataProvider->setId($this->shoppingCardRepository->getByUserId($shoppingCardDataProvider->getUser()->getId())->getId());
         }
+        $userEntity = $this->convert($shoppingCardDataProvider);
 
-        $transaction->run();
 
-        $shoppingCardDataProvider = $this->shoppingCardRepository->getByUserId($shoppingCardDataProvider->getUser()->getId());
+        $this->entityManager->persist($userEntity);
+        $this->entityManager->flush();
 
-        return $shoppingCardDataProvider;
+        $newUser = $this->shoppingCardRepository->getByUserId($shoppingCardDataProvider->getUser()->getId());
+        if (! $newUser instanceof ShoppingCardDataProvider) {
+            throw new \Exception('Fatal error while saving/loading', 1);
+        }
+        return $newUser;
     }
     private function extractArticleNumber(array $products):string
     {
@@ -66,5 +59,19 @@ class ShoppingCardEntityManager implements ShoppingCardEntityManagerInterface
             $articleNumbers = $articleNumbers.$article->getArticleNumber();
         }
         return $articleNumbers;
+    }
+
+    private function convert(ShoppingCardDataProvider $shoppingCardDataProvider):ShoppingCard
+    {
+        $shoppingCard = new ShoppingCard();
+        if ($shoppingCardDataProvider->hasId()) {
+            $shoppingCard->setId($shoppingCardDataProvider->getId());
+        }
+        $shoppingCard->setUserId($shoppingCardDataProvider->getUser()->getId());
+        $shoppingCard->setShoppingCard($this->extractArticleNumber($shoppingCardDataProvider->getProduct()));
+        $shoppingCard->setSum($shoppingCardDataProvider->getSum());
+
+
+        return $shoppingCard;
     }
 }

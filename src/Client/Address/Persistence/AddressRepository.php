@@ -41,11 +41,11 @@ class AddressRepository implements AddressRepositoryInterface
     public function getAddress(UserDataProvider $user, string $type, int $postcode): ?AddressDataProvider
     {
         $addressEntity = $this->entityRepository->findBy([
-            'user_id' => $user->getId(),
+            'userId' => $user->getId(),
             'type' => $type,
-            'post_code' => $postcode
+            'postCode' => $postcode
         ]);
-        if (isset($addressEntity)) {
+        if (isset($addressEntity[0])) {
             return $this->addressMapper->map($addressEntity[0]);
         }
         return null;
@@ -56,7 +56,7 @@ class AddressRepository implements AddressRepositoryInterface
         $addressList = [];
         $userAddressEntityList = $this->entityRepository->createQueryBuilder('userAddress')
             ->select()
-            ->where('user_id', $userId)
+            ->where('userId', $userId)
             ->getQuery()
             ->getResult();
         foreach ($userAddressEntityList as $address) {
@@ -71,7 +71,7 @@ class AddressRepository implements AddressRepositoryInterface
         $addressEntity = $this->entityRepository->findBy([
             'address_id' => $addressId
         ]);
-        if (isset($addressEntity)) {
+        if (isset($addressEntity[0])) {
             return $this->addressMapper->map($addressEntity[0]);
         }
         return null;

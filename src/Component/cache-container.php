@@ -349,7 +349,7 @@ class MyCachedContainer extends Container
      */
     protected function getAddressEntityManagerService()
     {
-        return $this->services['App\\Client\\Address\\Persistence\\AddressEntityManager'] = new \App\Client\Address\Persistence\AddressEntityManager(($this->privates['Cycle\\ORM\\ORM'] ?? $this->getORMService()), ($this->services['App\\Client\\Address\\Persistence\\AddressRepository'] ?? $this->getAddressRepositoryService()), ($this->services['App\\Client\\User\\Business\\UserBusinessFacade'] ?? $this->getUserBusinessFacadeService()));
+        return $this->services['App\\Client\\Address\\Persistence\\AddressEntityManager'] = new \App\Client\Address\Persistence\AddressEntityManager(($this->privates['Doctrine\\ORM\\EntityManager'] ?? $this->getEntityManagerService()), ($this->services['App\\Client\\Address\\Persistence\\AddressRepository'] ?? $this->getAddressRepositoryService()));
     }
 
     /**
@@ -479,7 +479,7 @@ class MyCachedContainer extends Container
      */
     protected function getOrderEntityManagerService()
     {
-        return $this->services['App\\Client\\Order\\Persistence\\OrderEntityManager'] = new \App\Client\Order\Persistence\OrderEntityManager(($this->privates['Cycle\\ORM\\ORM'] ?? $this->getORMService()), ($this->services['App\\Client\\Order\\Persistence\\OrderRepository'] ?? $this->getOrderRepositoryService()));
+        return $this->services['App\\Client\\Order\\Persistence\\OrderEntityManager'] = new \App\Client\Order\Persistence\OrderEntityManager(($this->privates['Doctrine\\ORM\\EntityManager'] ?? $this->getEntityManagerService()), ($this->services['App\\Client\\Order\\Persistence\\OrderRepository'] ?? $this->getOrderRepositoryService()));
     }
 
     /**
@@ -559,7 +559,7 @@ class MyCachedContainer extends Container
      */
     protected function getShoppingCardEntityManagerService()
     {
-        return $this->services['App\\Client\\ShoppingCard\\Persistence\\ShoppingCardEntityManager'] = new \App\Client\ShoppingCard\Persistence\ShoppingCardEntityManager(($this->privates['Cycle\\ORM\\ORM'] ?? $this->getORMService()), ($this->services['App\\Client\\ShoppingCard\\Persistence\\ShoppingCardRepository'] ?? $this->getShoppingCardRepositoryService()));
+        return $this->services['App\\Client\\ShoppingCard\\Persistence\\ShoppingCardEntityManager'] = new \App\Client\ShoppingCard\Persistence\ShoppingCardEntityManager(($this->privates['Doctrine\\ORM\\EntityManager'] ?? $this->getEntityManagerService()), ($this->services['App\\Client\\ShoppingCard\\Persistence\\ShoppingCardRepository'] ?? $this->getShoppingCardRepositoryService()));
     }
 
     /**

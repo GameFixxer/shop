@@ -76,17 +76,16 @@
 
         <!--EntityManager-->
         <service id="App\Client\ShoppingCard\Persistence\ShoppingCardEntityManager" public="true">
-            <argument id="Cycle\ORM\ORM" type="service"/>
-            <argument id="App\Client\ShoppingCard\Persistence\ShoppingCardRepository" type="service"/>
+            <argument type="service" id="Doctrine\ORM\EntityManager"/>
+            <argument type="service" id="App\Client\ShoppingCard\Persistence\ShoppingCardRepository"/>
         </service>
         <service id="App\Client\Order\Persistence\OrderEntityManager" public="true">
-            <argument id="Cycle\ORM\ORM" type="service"/>
-            <argument id="App\Client\Order\Persistence\OrderRepository" type="service"/>
+            <argument type="service" id="Doctrine\ORM\EntityManager"/>
+            <argument type="service" id="App\Client\Order\Persistence\OrderRepository"/>
         </service>
         <service id="App\Client\Address\Persistence\AddressEntityManager" public="true">
-            <argument id="Cycle\ORM\ORM" type="service"/>
-            <argument id="App\Client\Address\Persistence\AddressRepository" type="service"/>
-            <argument type="service" id="App\Client\User\Business\UserBusinessFacade"/>
+            <argument type="service" id="Doctrine\ORM\EntityManager"/>
+            <argument type="service" id="App\Client\Address\Persistence\AddressRepository"/>
         </service>
         <service id="App\Client\Attribute\Persistence\AttributeEntityManager" public ="true">
             <argument type="service" id="Doctrine\ORM\EntityManager"/>
