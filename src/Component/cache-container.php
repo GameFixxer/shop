@@ -389,7 +389,7 @@ class MyCachedContainer extends Container
      */
     protected function getAttributeEntityManagerService()
     {
-        return $this->services['App\\Client\\Attribute\\Persistence\\AttributeEntityManager'] = new \App\Client\Attribute\Persistence\AttributeEntityManager(($this->privates['Cycle\\ORM\\ORM'] ?? $this->getORMService()), ($this->services['App\\Client\\Attribute\\Persistence\\AttributeRepository'] ?? $this->getAttributeRepositoryService()));
+        return $this->services['App\\Client\\Attribute\\Persistence\\AttributeEntityManager'] = new \App\Client\Attribute\Persistence\AttributeEntityManager(($this->privates['Doctrine\\ORM\\EntityManager'] ?? $this->getEntityManagerService()), ($this->services['App\\Client\\Attribute\\Persistence\\AttributeRepository'] ?? $this->getAttributeRepositoryService()));
     }
 
     /**
@@ -609,7 +609,7 @@ class MyCachedContainer extends Container
      */
     protected function getUserRepositoryService()
     {
-        return $this->services['App\\Client\\User\\Persistence\\UserRepository'] = new \App\Client\User\Persistence\UserRepository(($this->services['App\\Client\\User\\Persistence\\Mapper\\UserMapper'] ?? ($this->services['App\\Client\\User\\Persistence\\Mapper\\UserMapper'] = new \App\Client\User\Persistence\Mapper\UserMapper())), ($this->privates['Cycle\\ORM\\ORM'] ?? $this->getORMService()));
+        return $this->services['App\\Client\\User\\Persistence\\UserRepository'] = new \App\Client\User\Persistence\UserRepository(($this->services['App\\Client\\User\\Persistence\\Mapper\\UserMapper'] ?? ($this->services['App\\Client\\User\\Persistence\\Mapper\\UserMapper'] = new \App\Client\User\Persistence\Mapper\UserMapper())), ($this->privates['Doctrine\\ORM\\EntityManager'] ?? $this->getEntityManagerService()));
     }
 
     /**

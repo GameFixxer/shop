@@ -9,7 +9,7 @@ interface AttributeRepositoryInterface
     /**
      * @return AttributeDataProvider[]
      */
-    public function getAttributeList(): array;
+    public function getList(): array;
 
-    public function getAttribute(string $attributeKey): ?AttributeDataProvider;
+    public function get(string $attributeKey): ?AttributeDataProvider;
 }

@@ -5,10 +5,11 @@ namespace App\Tests\integration\Model;
 
 use App\Client\User\Persistence\Entity\User;
 use App\Generated\UserDataProvider;
-use App\Service\DatabaseManager;
+use App\Service\DoctrineDataBaseManager;
 use App\Service\PasswordManager;
 use App\Tests\integration\Helper\ContainerHelper;
-use Cycle\ORM\Transaction;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityRepository;
 
 /**
  * @group userrep
@@ -17,25 +18,20 @@ use Cycle\ORM\Transaction;
 class UserRepositoryTest extends \Codeception\Test\Unit
 {
     private ContainerHelper $container;
-    private Transaction $transaction;
-    private \Cycle\ORM\RepositoryInterface $ormUserRepository;
     private PasswordManager $passwordManager;
     private $businessFacade;
     private UserDataProvider $entity;
+    private EntityManager $entityManager;
+    private EntityRepository $repository;
 
     public function _before()
     {
         $this->container = new ContainerHelper();
 
-        $databaseManager = new DatabaseManager();
 
         $this->passwordManager = new PasswordManager();
-
-        $orm = $databaseManager->connect();
-
-        $this->ormUserRepository = $orm->getRepository(User::class);
-
-        $this->transaction = new Transaction($orm);
+        $this->entityManager = DoctrineDataBaseManager::getEntityManager();
+        $this->repository =  $this->entityManager->getRepository(User::class);
 
         $this->businessFacade = $this->container->getUserBusinessFacade();
 
@@ -44,10 +40,8 @@ class UserRepositoryTest extends \Codeception\Test\Unit
 
     public function _after()
     {
-        if ($this->ormUserRepository->findByPK($this->entity->getId()) instanceof User) {
-            $this->transaction->delete($this->ormUserRepository->findByPK($this->entity->getId()));
-            $this->transaction->run();
-        }
+        $this->entityManager->remove($this->entity);
+        $this->entityManager->flush();
     }
 
     public function testGetUserWithExistingUser()
@@ -62,9 +56,9 @@ class UserRepositoryTest extends \Codeception\Test\Unit
 
     public function testGetUserWithNonExistingUser()
     {
-        $productRepository = $this->container->getProductRepository();
+        $repository = $this->container->getUserRepository();
 
-        $this->assertNull($productRepository->get(0));
+        $this->assertNull($repository->get(0));
     }
 
     public function testGetLastUserOfUserListWithNonEmptyDatabase()
@@ -72,7 +66,7 @@ class UserRepositoryTest extends \Codeception\Test\Unit
         $userRepository = $this->container->getUserRepository();
 
         $userListFromUserRepository = $userRepository->getList();
-        $lastUserOfUserList = end($userListFromUserRepository);
+        $lastUserOfUserList = $userListFromUserRepository[0];
 
         $this->assertSame($this->entity->getUsername(), $lastUserOfUserList ->getUsername());
         $this->assertSame($this->entity->getPassword(), $lastUserOfUserList->getPassword());
@@ -88,6 +82,7 @@ class UserRepositoryTest extends \Codeception\Test\Unit
         $this->entity->setSessionId('');
         $this->entity->setResetPassword('');
         $this->entity->setShoppingcardId(0);
+        $this->entity->setAddressId("");
 
         return $this->entity;
     }

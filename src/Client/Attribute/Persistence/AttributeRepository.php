@@ -29,7 +29,7 @@ class AttributeRepository implements AttributeRepositoryInterface
     /**
      * @return AttributeDataProvider[]
      */
-    public function getAttributeList(): array
+    public function getList(): array
     {
         $attributeList = [];
         $attributeEntityList = (array)$this->attributeRepository->findAll();
@@ -40,10 +40,10 @@ class AttributeRepository implements AttributeRepositoryInterface
         return $attributeList;
     }
 
-    public function getAttribute(string $attributeKey): ?AttributeDataProvider
+    public function get(string $attributeKey): ?AttributeDataProvider
     {
         $attributeEntity = $this->attributeRepository->findBy(['attribute_key'=>$attributeKey]);
-        if (isset($attributeEntity)) {
+        if (isset($attributeEntity[0])) {
             return $this->attributeMapper->map($attributeEntity[0]);
         }
         return null;

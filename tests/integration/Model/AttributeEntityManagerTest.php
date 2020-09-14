@@ -6,8 +6,11 @@ namespace App\Tests\integration\Model;
 use App\Client\Attribute\Persistence\Entity\Attribute;
 use App\Generated\AttributeDataProvider;
 use App\Service\DatabaseManager;
+use App\Service\DoctrineDataBaseManager;
 use App\Tests\integration\Helper\ContainerHelper;
 use Cycle\ORM\Transaction;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityRepository;
 
 
 /**
@@ -18,38 +21,38 @@ class AttributeEntityManagerTest extends \Codeception\Test\Unit
 {
     private AttributeDataProvider $attributeDto;
     private ContainerHelper $container;
-    private Transaction $transaction;
-    private \Cycle\ORM\RepositoryInterface $ormAttributeRepository;
+    private EntityManager $entityManager;
+    private EntityRepository $repository;
+
+
     private $attributeEntityManager;
 
     public function _before()
     {
         $this->container = new ContainerHelper();
-
-        $databaseManager = new DatabaseManager();
-
-        $orm = $databaseManager->connect();
-
-        $this->ormAttributeRepository = $orm->getRepository(Attribute::class);
-
+        $this->entityManager = DoctrineDataBaseManager::getEntityManager();
+        $this->repository = $this->entityManager->getRepository(Attribute::class);
         $this->attributeEntityManager = $this->container->getAttributeEntityManager();
-        $this->transaction = new Transaction($orm);
-        $this->createDto('fu', 'ba');
+
+
+        $this->createDto('tester', 'testing');
+
     }
+
+
 
     public function _after()
     {
-        if ($this->ormAttributeRepository->findOne(['attribute_key'=>$this->attributeDto->getAttributeKey()]) instanceof Attribute) {
-            $this->transaction->delete($this->ormAttributeRepository->findOne(['attribute_key'=>$this->attributeDto->getAttributeKey()]));
-            $this->transaction->run();
-        }
+        $this->entityManager->remove($this->attributeDto);
+        $this->entityManager->flush();
     }
 
     public function testCreateAttribute()
     {
+        $this->createDto("tester", "testing");
         $this->attributeDto->setAttributeId(($this->attributeEntityManager->save($this->attributeDto))->getAttributeId());
 
-        $attributeFromRepository = $this->container->getAttributeRepository()->getAttribute($this->attributeDto->getAttributeKey());
+        $attributeFromRepository = $this->container->getAttributeRepository()->get($this->attributeDto->getAttributeKey());
 
         $this->assertSame($this->attributeDto->getAttributeKey(), $attributeFromRepository->getAttributeKey());
         $this->assertSame($this->attributeDto->getAttributeValue(), $attributeFromRepository->getAttributeValue());
@@ -61,7 +64,7 @@ class AttributeEntityManagerTest extends \Codeception\Test\Unit
         $this->attributeDto->setAttributeKey('fabulous');
         $this->attributeDto->setAttributeValue('even more fabulous');
         $this->attributeDto = $this->attributeEntityManager->save($this->attributeDto);
-        $attributeFromRepository = $this->container->getAttributeRepository()->getAttribute($this->attributeDto->getAttributeKey());
+        $attributeFromRepository = $this->container->getAttributeRepository()->get($this->attributeDto->getAttributeKey());
 
         $this->assertSame($this->attributeDto->getAttributeKey(), $attributeFromRepository->getAttributeKey());
         $this->assertSame($this->attributeDto->getAttributeValue(), $attributeFromRepository->getAttributeValue());

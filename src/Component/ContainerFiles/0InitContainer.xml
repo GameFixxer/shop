@@ -64,7 +64,8 @@
         </service>
         <service id="App\Client\User\Persistence\UserRepository" public="true">
             <argument type="service" id="App\Client\User\Persistence\Mapper\UserMapper"/>
-            <argument type="service" id="Cycle\ORM\ORM"/>
+            <argument type="service" id="Doctrine\ORM\EntityManager"/>
+
         </service>
         <service id="App\Client\Category\Persistence\CategoryRepository" public="true">
             <argument type="service" id="App\Client\Category\Persistence\Mapper\CategoryMapper"/>
@@ -88,8 +89,8 @@
             <argument type="service" id="App\Client\User\Business\UserBusinessFacade"/>
         </service>
         <service id="App\Client\Attribute\Persistence\AttributeEntityManager" public ="true">
-            <argument id="Cycle\ORM\ORM" type="service"/>
-            <argument id="App\Client\Attribute\Persistence\AttributeRepository" type="service"/>
+            <argument type="service" id="Doctrine\ORM\EntityManager"/>
+            <argument type="service" id="App\Client\Attribute\Persistence\AttributeRepository"/>
         </service>
         <service id="App\Client\Product\Persistence\ProductEntityManager" public="true">
             <argument type="service" id="Doctrine\ORM\EntityManager"/>

@@ -35,30 +35,22 @@ class CategoryEntityManager implements CategoryEntityManagerInterface
     public function save(CategoryDataProvider $category): CategoryDataProvider
     {
         if ($category->hasCategoryId()) {
-            $this->entityRepository->createQueryBuilder('c')
-                ->update()
-                ->set('c.key', ':categoryKey')
-                ->where('c.id = :categoryId')
-                ->setParameter(':categoryKey', $category->getCategoryKey())
-                ->setParameter(':categoryId', $category->getCategoryId())
-                ->getQuery()
-                ->execute();
-
-            $this->entityManager->clear();
+            $category->setCategoryId($this->categoryRepository->getCategory($category->getCategoryId())->getCategoryId());
+            $categoryEntity = $this->convert($category);
         } else {
-            $categoryEntity = new Category();
-            $categoryEntity = $this->convert($categoryEntity, $category);
+            $categoryEntity = $this->convert($category);
 
-            $this->entityManager->persist($categoryEntity);
-            $this->entityManager->flush();
+
         }
+        $this->entityManager->persist($categoryEntity);
+        $this->entityManager->flush();
 
 
-
-        return $category;
+        return $this->categoryRepository->getCategoryByKey($category->getCategoryKey());
     }
-    private function convert(Category $categoryEntity, CategoryDataProvider $categoryDataProvider): Category
+    private function convert(CategoryDataProvider $categoryDataProvider): Category
     {
+        $categoryEntity = new Category();
         $categoryEntity->setKey($categoryDataProvider->getCategoryKey());
         return $categoryEntity;
     }

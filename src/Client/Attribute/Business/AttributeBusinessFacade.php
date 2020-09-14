@@ -20,7 +20,7 @@ class AttributeBusinessFacade implements AttributeBusinessFacadeInterface
 
     public function get(string $attributeKey): ?AttributeDataProvider
     {
-        return $this->attributeRepository->getAttribute($attributeKey);
+        return $this->attributeRepository->get($attributeKey);
     }
 
     /**
@@ -29,7 +29,7 @@ class AttributeBusinessFacade implements AttributeBusinessFacadeInterface
 
     public function getList():array
     {
-        return$this->attributeRepository->getAttributeList();
+        return$this->attributeRepository->getList();
     }
     public function save(AttributeDataProvider $attribute):AttributeDataProvider
     {

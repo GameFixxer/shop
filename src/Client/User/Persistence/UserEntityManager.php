@@ -28,55 +28,38 @@ class UserEntityManager implements UserEntityManagerInterface
     public function delete(UserDataProvider $user):void
     {
         $this->entityManager->remove($user);
+        $this->entityManager->flush();
         $this->userRepository->getList();
     }
 
     public function save(UserDataProvider $user): UserDataProvider
     {
         if ($user->hasId()) {
-            $this->repository->createQueryBuilder('c')
-                ->set('c.addressId', ':addressId')
-                ->set('c.password', ':password')
-                ->set('c.resetPassword', ':resetPassword')
-                ->set('c.role', ':role')
-                ->set('c.session_id', ':session_id')
-                ->set('c.shoppingCard_id', ':shoppingCard_id')
-                ->set('c.username', ':username')
-                ->where('c.id = :categoryId')
-                ->setParameter(':addressId', $user->getAddressId())
-                ->setParameter(':password', $user->getPassword())
-                ->setParameter(':resetPassword', $user->getResetPassword())
-                ->setParameter(':session_id', $user->getSessionId())
-                ->setParameter(':shoppingCard_id', $user->getShoppingCardId())
-                ->setParameter(':username', $user->getUsername())
-                ->getQuery()
-                ->execute();
-
-            $this->entityManager->clear();
-        } else {
-            $categoryEntity = new User();
-            $categoryEntity = $this->convert($categoryEntity, $user);
-
-            $this->entityManager->persist($categoryEntity);
-            $this->entityManager->flush();
+            $user->setId($this->userRepository->get($user->getUsername())->getId());
         }
+        $userEntity = $this->convert($user);
 
+
+        $this->entityManager->persist($userEntity);
+        $this->entityManager->flush();
+
+        $this->userRepository->get($user->getUsername());
         $newUser = $this->userRepository->get($user->getUsername());
         if (! $newUser instanceof UserDataProvider) {
             throw new \Exception('Fatal error while saving/loading', 1);
         }
         return $newUser;
     }
-    private function convert(User $userEntity, UserDataProvider $userDataProvider):User
+    private function convert(UserDataProvider $userDataProvider):User
     {
+        $userEntity = new User();
         $userEntity->setShoppingCardId($userDataProvider->getShoppingCardId());
-        $userEntity->setSessionId($userDataProvider->setSessionId());
+        $userEntity->setSessionId($userDataProvider->getSessionId());
         $userEntity->setResetPassword($userDataProvider->getResetPassword());
         $userEntity->setUsername($userDataProvider->getUsername());
         $userEntity->setRole($userDataProvider->getRole());
         $userEntity->setPassword($userDataProvider->getPassword());
         $userEntity->setAddressIds($userDataProvider->getAddressId());
-
         return $userEntity;
     }
 }

@@ -7,37 +7,47 @@ use App\Client\User\Persistence\UserEntityManager;
 use App\Client\User\Persistence\Entity\User;
 use App\Generated\UserDataProvider;
 use App\Service\DatabaseManager;
+use App\Service\DoctrineDataBaseManager;
+use App\Service\PasswordManager;
 use App\Tests\integration\Helper\ContainerHelper;
 use Cycle\ORM\Transaction;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityRepository;
 
 /**
- * @group Repository
+ * @group userrep2
  */
 
 
 class UserEntityManagerTest extends \Codeception\Test\Unit
 {
-    private UserDataProvider $userDto;
     private ContainerHelper $container;
+    private PasswordManager $passwordManager;
+    private $businessFacade;
+    private UserDataProvider $entity;
+    private EntityManager $entityManager;
+    private EntityRepository $repository;
+    private UserDataProvider $userDto;
     private UserEntityManager $userEntityManager;
 
     public function _before()
     {
         $this->container = new ContainerHelper();
+
+
+        $this->passwordManager = new PasswordManager();
+        $this->entityManager = DoctrineDataBaseManager::getEntityManager();
+        $this->repository =  $this->entityManager->getRepository(User::class);
+
+        $this->businessFacade = $this->container->getUserBusinessFacade();
         $this->userEntityManager = $this->container->getUserEntityManager();
-        $this->createDto('fu', 'ba', 'user');
+        $this->createDto("test", "tester", "user");
     }
 
     public function _after()
     {
-        if (isset($this->userDto) && !($this->userDto->getId() === null)) {
-            $orm = new DatabaseManager();
-            $orm = $orm->connect();
-            $ormUserRepository = $orm->getRepository(User::class);
-            $transaction = new Transaction($orm);
-            $transaction->delete($ormUserRepository->findByPK($this->userDto->getId()));
-            $transaction->run();
-        }
+        $this->entityManager->remove($this->userDto);
+        $this->entityManager->flush();
     }
 
     public function testCreateUser()
@@ -52,7 +62,6 @@ class UserEntityManagerTest extends \Codeception\Test\Unit
 
     public function testUpdateUser()
     {
-        $this->testCreateUser();
 
         $this->userDto->setUsername('fu');
         $this->userDto->setPassword('even more fabulous');
@@ -79,11 +88,13 @@ class UserEntityManagerTest extends \Codeception\Test\Unit
     private function createDto(String $username, String $password, String $role)
     {
         $this->userDto = new UserDataProvider();
-        $this->userDto->setUsername($username);
-        $this->userDto->setPassword($password);
-        $this->userDto->setRole($role);
-        $this->userDto->setResetPassword('');
+        $this->userDto->setUsername('mate');
+        $this->userDto->setPassword('seeyou');
+        $this->userDto->setRole('user');
         $this->userDto->setSessionId('');
-        $this->userDto->setShoppingCardId(0);
+        $this->userDto->setResetPassword('');
+        $this->userDto->setShoppingcardId(0);
+        $this->userDto->setAddressId("");
+        return $this->userDto;
     }
 }

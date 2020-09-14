@@ -5,8 +5,9 @@ namespace App\Client\Attribute\Persistence;
 
 use App\Client\Attribute\Persistence\Entity\Attribute;
 use App\Generated\AttributeDataProvider;
-use Cycle\ORM\ORM;
-use Cycle\ORM\Transaction;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityRepository;
+
 
 class AttributeEntityManager implements AttributeEntityManagerInterface
 {
@@ -15,42 +16,50 @@ class AttributeEntityManager implements AttributeEntityManagerInterface
      * @var AttributeRepository
      */
     private AttributeRepository $attributeRepository;
-    private \Cycle\ORM\RepositoryInterface $ormAttributeRepository;
+    private EntityManager $entityManager;
+    private EntityRepository $repository;
 
-    private ORM $orm;
-
-    public function __construct(ORM $orm, AttributeRepository $attributeRepository)
+    public function __construct(EntityManager $entityManager, AttributeRepository $attributeRepository)
     {
         $this->attributeRepository = $attributeRepository;
-        $this->orm = $orm;
-        //$this->ormAttributeRepository = $orm->getRepository(Attribute::class);
+        $this->repository = $entityManager->getRepository(Attribute::class);
+        $this->entityManager = $entityManager;
     }
 
 
 
     public function delete(AttributeDataProvider $attribute):void
     {
-        $transaction = new Transaction($this->orm);
-        $transaction->delete($this->ormAttributeRepository->findOne(['attribute_key'=>$attribute
-            ->getAttributeKey()]));
-        $transaction->run();
 
-        $this->attributeRepository->getAttributeList();
+        $this->entityManager->remove($attribute);
+        $this->entityManager->flush();
+        $this->attributeRepository->getList();
     }
 
     public function save(AttributeDataProvider $attribute): AttributeDataProvider
     {
-        $transaction = new Transaction($this->orm);
-        $entity = $this->ormAttributeRepository->findOne(['attribute_key'=>$attribute->getAttributeKey()]);
-        if (!$entity instanceof Attribute) {
-            $entity = new Attribute();
+        if ($attribute->hasAttributeId()) {
+            $attribute->setAttributeId(($this->attributeRepository->get($attribute->getAttributeKey())->getAttributeId()));
         }
-        $entity->setAttributeKey($attribute->getAttributeKey());
-        $entity->setAttributeValue($attribute->getAttributeValue());
-        $transaction->persist($entity);
-        $transaction->run();
+        $userEntity = $this->convert($attribute);
 
-        $attribute->setAttributeId($entity->getId());
+
+        $this->entityManager->persist($userEntity);
+        $this->entityManager->flush();
+
+        $this->attributeRepository->get($attribute->getAttributeKey());
+        $attributeDataProvider = $this->attributeRepository->get($attribute->getAttributeKey());
+        if (! $attributeDataProvider instanceof AttributeDataProvider) {
+            throw new \Exception('Fatal error while saving/loading', 1);
+        }
+        return $attributeDataProvider;
+    }
+
+    private function convert(AttributeDataProvider $attributeDataProvider):Attribute
+    {
+        $attribute = new Attribute();
+        $attribute->setAttributeKey($attributeDataProvider->getAttributeKey());
+        $attribute->setAttributeValue($attributeDataProvider->getAttributeValue());
 
         return $attribute;
     }

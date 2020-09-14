@@ -4,21 +4,22 @@ declare(strict_types=1);
 
 namespace App\Client\User\Persistence;
 
-
 use App\Client\User\Persistence\Entity\User;
 use App\Client\User\Persistence\Mapper\UserMapperInterface;
 use App\Generated\UserDataProvider;
 use Cycle\ORM\ORM;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityRepository;
 
 class UserRepository implements UserRepositoryInterface
 {
     private UserMapperInterface $userMapper;
-    private \Cycle\ORM\RepositoryInterface $ormUserRepository;
+    private EntityRepository $entityRepository;
 
-    public function __construct(UserMapperInterface $userMapper, \Cycle\ORM\ORM $ormUserRepository)
+    public function __construct(UserMapperInterface $userMapper, EntityManager $entityManager)
     {
         $this->userMapper = $userMapper;
-        $this->ormUserRepository = $ormUserRepository->getRepository(User::class);
+        $this->entityRepository = $entityManager->getRepository(User::class);
     }
 
     /**
@@ -28,10 +29,12 @@ class UserRepository implements UserRepositoryInterface
     {
         $userList = [];
 
-        $userEntityList = (array)$this->ormUserRepository->select()->fetchALl();
+        $userEntityList = (array)$this->entityRepository->findAll();
         /** @var  User $user */
         foreach ($userEntityList as $user) {
-            $userList[] = $this->userMapper->map($user);
+            if (isset($user)) {
+                $userList[] = $this->userMapper->map($user);
+            }
         }
 
         return $userList;
@@ -39,10 +42,10 @@ class UserRepository implements UserRepositoryInterface
 
     public function get(string $username): ?UserDataProvider
     {
-        $userEntity = $this->ormUserRepository->findOne([
+        $userEntity = $this->entityRepository->findBy([
             'username' => $username
         ]);
-        if (isset($userEntity)) {
+        if (isset($userEntity[0])) {
             return $this->userMapper->map($userEntity[0]);
         }
         return null;
@@ -50,8 +53,10 @@ class UserRepository implements UserRepositoryInterface
 
     public function getById(int $id):?UserDataProvider
     {
-        $userEntity = $this->ormUserRepository->findByPK($id);
-        if (isset($userEntity)) {
+        $userEntity = $this->entityRepository->findBy([
+            'id' => $id
+        ]);
+        if (isset($userEntity[0])) {
             return $this->userMapper->map($userEntity[0]);
         }
         return null;

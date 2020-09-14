@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Client\User\Business;
 
-use App\Client\User\Persistence\Entity\User;
 use App\Client\User\Persistence\UserEntityManagerInterface;
 use App\Client\User\Persistence\UserRepositoryInterface;
 use App\Generated\UserDataProvider;

@@ -3,53 +3,48 @@
 
 namespace App\Tests\integration\Model;
 
+
 use App\Client\Attribute\Persistence\Entity\Attribute;
 
-use App\Service\DatabaseManager;
+use App\Service\DoctrineDataBaseManager;
 use App\Tests\integration\Helper\ContainerHelper;
-use Cycle\ORM\Transaction;
-
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityRepository;
 
 
 /**
- * @group Attribute
+ * @group Attribute2
  */
 
 class AttributeRepositoryTest extends \Codeception\Test\Unit
 {
     private ContainerHelper $container;
-    private Transaction $transaction;
-    private \Cycle\ORM\RepositoryInterface $ormAttributeRepository;
+    private EntityManager $entityManager;
+    private EntityRepository $repository;
     private Attribute $entity;
 
     public function _before()
     {
         $this->container = new ContainerHelper();
+        $this->entityManager = DoctrineDataBaseManager::getEntityManager();
+        $this->repository = $this->entityManager->getRepository(Attribute::class);
+        $this->createAttributeEntity();
+        $this->entityManager->persist($this->entity);
+        $this->entityManager->flush();
 
-        $databaseManager = new DatabaseManager();
-
-        $orm = $databaseManager->connect();
-
-        $this->ormAttributeRepository = $orm->getRepository(Attribute::class);
-
-        $this->transaction = new Transaction($orm);
-        $this->transaction->persist($this->createAttributeEntity());
-        $this->transaction->run();
     }
 
     public function _after()
     {
-        if ($this->ormAttributeRepository->findOne(['attribute_key'=>$this->entity->getAttributeKey()]) instanceof Attribute) {
-            $this->transaction->delete($this->ormAttributeRepository->findOne(['attribute_key'=>$this->entity->getAttributeKey()]));
-            $this->transaction->run();
-        }
+        $this->entityManager->remove($this->entity);
+        $this->entityManager->flush();
     }
 
     public function testGetProductWithExistingProduct()
     {
         $attributeRepository = $this->container->getAttributeRepository();
 
-        $productDtoFromRepository = $attributeRepository->getAttribute($this->entity->getAttributeKey());
+        $productDtoFromRepository = $attributeRepository->get($this->entity->getAttributeKey());
 
         $this->assertSame($this->entity->getAttributeKey(), $productDtoFromRepository->getAttributeKey());
         $this->assertSame($this->entity->getAttributeValue(), $productDtoFromRepository->getAttributeValue());
@@ -59,15 +54,16 @@ class AttributeRepositoryTest extends \Codeception\Test\Unit
     public function testGetProductWithNonExistingProduct()
     {
         $attributeRepository = $this->container->getAttributeRepository();
-
-        $this->assertNull($attributeRepository->getAttribute('0'));
+        $key = "tester12";
+        $tester = $attributeRepository->get($key);
+        $this->assertNull($tester);
     }
 
     public function testGetLastProductOfProductListWithNonEmptyDatabase()
     {
         $attributeRepository = $this->container->getAttributeRepository();
 
-        $productListFromProductRepository = $attributeRepository->getAttributeList();
+        $productListFromProductRepository = $attributeRepository->getList();
 
         $lastProductOfProductRepositoryList = end($productListFromProductRepository);
 
